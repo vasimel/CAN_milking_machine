@@ -1,18 +1,18 @@
 import can
 import threading
 import queue
-from csv_logger import write_to_csv
+from csv_logger import write_to_csv, to_uniform
 from time import sleep
 from datetime import datetime
 import locale 
-
+import os
 
 # Получение текущей даты и времени
 now = datetime.now()
 
 # Преобразование в строку в формате 'гггг-мм-дд чч:мм:сс'
 date_time_str = now.strftime("%d-%m-%Y_%H-%M-%S")
-
+date_str = now.strftime('%d.%m.%Y')
 nodes_to_query = queue.Queue()
 
 
@@ -166,9 +166,22 @@ def main(output_func):
 
 
     logfile_name = f"{date_time_str}.csv"
-    
-    write_to_csv(machines, logfile_name)
-    output_func(f"Опрос завершен. Данные загружены в файл {logfile_name}.")
+    # Путь к папке
+    folder_path = r'D:\download_reports\reports'
+
+    # Создаем папку, если она не существует
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)
+
+    # Путь к файлу внутри папки
+    file_path = os.path.join(folder_path, logfile_name)
+
+    write_to_csv(machines, file_path)
+
+    to_uniform(file_path, date_str)
+
+    output_func(f"Опрос завершен. Данные загружены в файл {file_path}.")
+
     notifier.stop()
 
     #task.stop()
