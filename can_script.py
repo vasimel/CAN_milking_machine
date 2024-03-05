@@ -47,14 +47,14 @@ class Answer_Listener(can.Listener):
                 self.response_event.set()
 
 
-milking_query_data = [[0x40, 0x00, 0x21, 0x02], [0x2F, 0x00, 0x21, 0x02], 
-                      [0x40, 0x00, 0x21, 0x03], [0x40, 0x00, 0x21, 0x04],
-                      [0x40, 0x00, 0x21, 0x05], [0x40, 0x00, 0x21, 0x06],
-                      [0x40, 0x00, 0x21, 0x07]]
+milking_query_data = [[0x50, 0x00, 0x22, 0x02], [0x2A, 0x00, 0x20, 0x02], 
+                      [0x50, 0x00, 0x22, 0x03], [0x40, 0x00, 0x22, 0x04],
+                      [0x50, 0x00, 0x22, 0x05], [0x40, 0x00, 0x22, 0x06],
+                      [0x50, 0x00, 0x21, 0x08]]
 milking_answer_data = [[0x4F, 0x00, 0x21, 0x02], [0x60, 0x00, 0x21, 0x02], 
-                       [0x4B, 0x00, 0x21, 0x03], [0x4B, 0x00, 0x21, 0x04],
-                       [0x4B, 0x00, 0x21, 0x05], [0x4B, 0x00, 0x21, 0x06],
-                       [0x4B, 0x00, 0x21, 0x07]]
+                       [0x4C, 0x00, 0x21, 0x03], [0x4C, 0x00, 0x21, 0x04],
+                       [0x4C, 0x00, 0x21, 0x05], [0x4C, 0x00, 0x21, 0x06],
+                       [0x4C, 0x00, 0x21, 0x07]]
 
 machines = dict()
 #machines = {1:[1, 2, 3, 4][4,5,6,7]...}
@@ -87,14 +87,14 @@ def main(output_func):
             arbit_id = 0x600 + node
             answer_listener.set_expected_arbitration_id(0x580 + node)
             query_message = can.Message(arbitration_id=arbit_id, 
-                                        data=[0x40, 0x01, 0x21, 0x00, 0x00, 0x00, 0x00, 0x00], #неизвестный запрос
+                                        data=[0x50, 0x01, 0x22, 0x00, 0x00, 0x00, 0x00, 0x00], #неизвестный запрос
                                         is_extended_id=False)
             bus.send(query_message)
             response_event.wait()
             response_event.clear()
 
             query_message = can.Message(arbitration_id=arbit_id, 
-                                        data=[0x40, 0x00, 0x21, 0x01, 0x00, 0x00, 0x00, 0x00], #количество доек, номер аппарата
+                                        data=[0x50, 0x00, 0x21, 0x01, 0x00, 0x00, 0x00, 0x00], #количество доек, номер аппарата
                                         is_extended_id=False)
             bus.send(query_message)
             response_event.wait()
@@ -104,7 +104,7 @@ def main(output_func):
             machines[machine_id] = []
 
             query_message = can.Message(arbitration_id=arbit_id, 
-                                        data=[0x40, 0x18, 0x10, 0x02, 0x00, 0x00, 0x00, 0x00], #неизвестный запрос
+                                        data=[0x50, 0x10, 0x10, 0x02, 0x00, 0x00, 0x00, 0x00], #неизвестный запрос
                                         is_extended_id=False)
             bus.send(query_message)
             response_event.wait()
@@ -115,7 +115,7 @@ def main(output_func):
                 for m in range(len(milking_query_data)):
                     query_message = can.Message(arbitration_id=arbit_id, data=milking_query_data[m] + [0x00, 0x00, 0x00, 0x00], is_extended_id=False)
                     if m == 1:
-                        query_message.data[4] = int(hex(i), 16) #непонятно как тут быть
+                        query_message.data[4] = int(hex(i), 16)
                     bus.send(query_message)
                     response_event.wait()
                     response_event.clear()
