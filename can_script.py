@@ -1,7 +1,7 @@
 import can
 import threading
 import queue
-from csv_logger import write_to_csv, to_uniform
+from csv_logger import write_to_csv
 from time import sleep
 from datetime import datetime
 import locale 
@@ -23,7 +23,7 @@ class newNode_Listener(can.Listener):
         self.output_func = output_func
     def on_message_received(self, msg):
         arbit_id = msg.arbitration_id
-        if arbit_id >= 0x700 and arbit_id <= 0x718:
+        if arbit_id >= 0x900 and arbit_id <= 0x918:
             node_id = arbit_id - 0x700
             nodes_to_query.put(node_id)
             self.output_func(f"Добавлен аппарат {node_id} ({hex(node_id)})")
@@ -51,7 +51,7 @@ milking_query_data = [[0x50, 0x00, 0x22, 0x02], [0x2A, 0x00, 0x20, 0x02],
                       [0x50, 0x00, 0x22, 0x03], [0x40, 0x00, 0x22, 0x04],
                       [0x50, 0x00, 0x22, 0x05], [0x40, 0x00, 0x22, 0x06],
                       [0x50, 0x00, 0x21, 0x08]]
-milking_answer_data = [[0x4F, 0x00, 0x21, 0x02], [0x60, 0x00, 0x21, 0x02], 
+milking_answer_data = [[0x4F, 0x00, 0x21, 0x02], [0x70, 0x00, 0x25, 0x02], 
                        [0x4C, 0x00, 0x21, 0x03], [0x4C, 0x00, 0x21, 0x04],
                        [0x4C, 0x00, 0x21, 0x05], [0x4C, 0x00, 0x21, 0x06],
                        [0x4C, 0x00, 0x21, 0x07]]
@@ -94,7 +94,7 @@ def main(output_func):
             response_event.clear()
 
             query_message = can.Message(arbitration_id=arbit_id, 
-                                        data=[0x50, 0x00, 0x21, 0x01, 0x00, 0x00, 0x00, 0x00], #количество доек, номер аппарата
+                                        data=[0x50, 0x00, 0x21, 0x03, 0x00, 0x00, 0x00, 0x00], #количество доек, номер аппарата
                                         is_extended_id=False)
             bus.send(query_message)
             response_event.wait()
@@ -104,7 +104,7 @@ def main(output_func):
             machines[machine_id] = []
 
             query_message = can.Message(arbitration_id=arbit_id, 
-                                        data=[0x50, 0x10, 0x10, 0x02, 0x00, 0x00, 0x00, 0x00], #неизвестный запрос
+                                        data=[0x50, 0x10, 0x10, 0x01, 0x00, 0x00, 0x00, 0x00], #неизвестный запрос
                                         is_extended_id=False)
             bus.send(query_message)
             response_event.wait()
